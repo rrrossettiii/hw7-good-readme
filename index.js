@@ -1,7 +1,10 @@
 // Required Packages
 const inquirer = require("inquirer")
 const fs = require("fs")
+
+// Utilities
 const generateMarkdown = require("./utils/generateMarkdown.js")
+const axiosJS = require("./utils/axios.js")
 
 // array of userQuestions for user
 const userQuestions = [
@@ -9,7 +12,7 @@ const userQuestions = [
         name: 'Username',
         type: 'input',
         default: '@Username',
-        message: 'Enter your GitHub Username.',
+        message: 'Enter your GitHub Username:',
         validate: (response) => {if (response.length < 1){
             return console.log('A valid GitHub Username is required to proceed.');
         }
@@ -19,7 +22,7 @@ const userQuestions = [
         name: 'Repository',
         type: 'input',
         default: 'Case-Sensitive',
-        message: 'Enter the name of your GitHub Repository?',
+        message: 'Enter the name of your GitHub Repository:',
         validate: (response) => {if (response.length < 1){
             return console.log('A GitHub Repository is required for badges.');
         }
@@ -29,7 +32,7 @@ const userQuestions = [
         name: 'Title',
         type: 'input',
         default: 'Project-Title',
-        message: 'Enter the title of your project?',
+        message: 'Enter the title of your project:',
         validate: (response) => {if (response.length < 1){
             return console.log('Please title your project.');
         }
@@ -49,30 +52,30 @@ const userQuestions = [
         name: 'Installation',
         type: 'input',
         default: 'optional',
-        message: "Describe the steps required to install your project.",
+        message: "Describe the steps required to install your project:",
     },
     {
         name: 'Usage',
         type: 'input',
         default: 'optional',
-        message: "Enter instructions and examples of your project in use.",
+        message: "Enter instructions and examples of your project in use:",
     },
     {
         name: 'Contributions',
         type: 'input',
         default: 'optional',
-        message: "Enter guidelines on how other developers can contribute to your project.",
+        message: "Enter guidelines on how other developers can contribute to your project:",
     },
     {
         name: 'Testing',
         type: 'input',
         default: 'optional',
-        message: "Enter tests written for your application and examples on how to run them.",
+        message: "Enter tests written for your application and examples on how to run them:",
     },
     {
         name: 'License',
         type: 'list',
-        message: "Choose a license for your project.",
+        message: "Choose a license for your project:",
         choices: ['GNU AGPLv3', 'GNU GPLv3', 'GNU LGPLv3', 'Mozilla Public License 2.0', 'Apache License 2.0', 'MIT License', 'Boost Software License 1.0', 'The Unlicense'],
     }
 ];
@@ -103,10 +106,16 @@ function writeToFile(fileName, data) {
 
 // function to initialize program
 async function init() {
+    // Prompt Questions
     const userResponses = await inquirer.prompt(userQuestions) 
     console.log('Your Responses: ', userResponses);
 
-    const userReadme = generateMarkdown(userResponses)
+    // User info
+    const userInfo = await axiosJS.getUser(userResponses);
+    console.log('Github user info:', userInfo);
+
+    // Generate README
+    const userReadme = generateMarkdown(userResponses, userInfo)
     console.log(userReadme);
     await writeToFile(userResponses.Title + '-README.md', userReadme)
 }
