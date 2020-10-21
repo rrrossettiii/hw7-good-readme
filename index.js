@@ -37,7 +37,7 @@ const userQuestions = [
         default: 'Project-Title',
         message: 'Enter the title of your project:',
         validate: (response) => {if (response == ('' || 'Project-Title')){
-            return console.log('Please title your project.');
+            return console.log('Please TITLE your project.');
         }
         return true;}
     },
@@ -46,7 +46,7 @@ const userQuestions = [
         name: 'Description',
         type: 'input',
         default: 'Description...',
-        message: 'Please write a description of your project:',
+        message: 'Please write a DESCRIPTION of your project:',
         validate: (response) => {if (response == ('' || 'Description...')){
             return console.log('A valid description is required to proceed.');
         }
@@ -119,7 +119,6 @@ async function init() {
 
     // - get User information from GitHub; define it as userGitHub;
     const userGitHub = await axiosJS.getUser(userResponses);
-    console.log('Github user info:', userGitHub);
 
     // Generate README; - generate markdown; write file;
     const userReadme = generateMarkdown(userResponses, userGitHub)
