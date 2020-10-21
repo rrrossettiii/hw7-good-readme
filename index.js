@@ -1,77 +1,86 @@
-// Required Packages
+// Required Packages - inquirer; axios; file system;
 const inquirer = require("inquirer")
+const axios = require("axios")
 const fs = require("fs")
 
-// Utilities
+// Utilities - generateMarkdown.js;
 const generateMarkdown = require("./utils/generateMarkdown.js")
-const axiosJS = require("./utils/axios.js")
 
-// array of userQuestions for user
+// Inquirer Prompts;
 const userQuestions = [
+    // - Username; - REQUIRED;
     {
         name: 'Username',
         type: 'input',
-        default: '@Username',
+        default: 'Username',
         message: 'Enter your GitHub Username:',
-        validate: (response) => {if (response.length < 1){
+        validate: (response) => {if (response == ('' || 'Username')){
             return console.log('A valid GitHub Username is required to proceed.');
         }
         return true;}
     },
+    // - Repository; - REQUIRED;
     {
         name: 'Repository',
         type: 'input',
         default: 'Case-Sensitive',
         message: 'Enter the name of your GitHub Repository:',
-        validate: (response) => {if (response.length < 1){
+        validate: (response) => {if (response == ('' || 'Case-Sensitive')){
             return console.log('A GitHub Repository is required for badges.');
         }
         return true;}
     },
+    // - Title; - REQUIRED;
     {
         name: 'Title',
         type: 'input',
         default: 'Project-Title',
         message: 'Enter the title of your project:',
-        validate: (response) => {if (response.length < 1){
+        validate: (response) => {if (response == ('' || 'Project-Title')){
             return console.log('Please title your project.');
         }
         return true;}
     },
+    // - Description; - REQUIRED;
     {
         name: 'Description',
         type: 'input',
         default: 'Description...',
         message: 'Please write a description of your project:',
-        validate: (response) => {if (response.length < 1){
+        validate: (response) => {if (response == ('' || 'Description...')){
             return console.log('A valid description is required to proceed.');
         }
         return true;}
     },
+    // - Installation; - OPTIONAL;
     {
         name: 'Installation',
         type: 'input',
         default: 'optional',
-        message: "Describe the steps required to install your project:",
+        message: "Describe the steps required to INSTALL your project:",
     },
+    // - Usage; - OPTIONAL;
     {
         name: 'Usage',
         type: 'input',
         default: 'optional',
-        message: "Enter instructions and examples of your project in use:",
+        message: "Enter instructions and examples of your project in USE:",
     },
+    // - Contributions; - OPTIONAL;
     {
         name: 'Contributions',
         type: 'input',
         default: 'optional',
-        message: "Enter guidelines on how other developers can contribute to your project:",
+        message: "Enter guidelines on how other developers can CONTRIBUTE to your project:",
     },
+    // - Testing; - OPTIONAL;
     {
         name: 'Testing',
         type: 'input',
         default: 'optional',
-        message: "Enter tests written for your application and examples on how to run them:",
+        message: "Enter TESTS written for your application and examples on how to run them:",
     },
+    // - License; - REQUIRED;
     {
         name: 'License',
         type: 'list',
@@ -80,20 +89,7 @@ const userQuestions = [
     }
 ];
 
-const confirmCorrect = [
-    {
-        name: 'Confirm',
-        type: 'confirm',
-        message: 'Is this information all correct?'
-    },
-    {
-        name: 'Fix It',
-        type: 'checkbox',
-        choices: ['Repository', 'Title', 'Description', 'Installation', 'Usage', 'Contributions', 'Tests', 'License']
-    }
-]
-
-// function to write README file
+// Wite README.md;
 function writeToFile(fileName, data) {
     fs.writeFile(fileName, data, err => {
         if(err){
@@ -103,19 +99,28 @@ function writeToFile(fileName, data) {
     })
 }
 
-
-// function to initialize program
+// Initialize program
 async function init() {
     // Prompt Questions
     const userResponses = await inquirer.prompt(userQuestions) 
     console.log('Your Responses: ', userResponses);
 
     // User info
-    const userInfo = await axiosJS.getUser(userResponses);
-    console.log('Github user info:', userInfo);
+    // - get User information from GitHub and define it as userGitHub
+    const axiosJS = {
+        async getUser(userResponses) {
+            try { let response = await axios.get(`https://api.github.com/users/${userResponses.Username}`);
+            return response.data;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+};
+    const userGitHub = await axiosJS.getUser(userResponses);
+    console.log('Github user info:', userGitHub);
 
     // Generate README
-    const userReadme = generateMarkdown(userResponses, userInfo)
+    const userReadme = generateMarkdown(userResponses, userGitHub)
     console.log(userReadme);
     await writeToFile(userResponses.Title + '-README.md', userReadme)
 }

@@ -1,45 +1,47 @@
-function generateMarkdown(data, userInfo) {
+function generateMarkdown(userResponses, userGitHub) {
   
-  // Readme Header
+  // Readme Header - title; last commit badge; description;
   let readmeDraft =
-  `# ${data.Title} \n![Badge for GitHub last commit](https://img.shields.io/github/last-commit/${data.Username}/${data.Repository}?style=flat&logo=appveyor) \n \n \n## Description: \n${data.Description} \n \n`
+  `# ${userResponses.Title} \n![Badge for GitHub last commit](https://img.shields.io/github/last-commit/${userResponses.Username}/${userResponses.Repository}?style=flat&logo=appveyor) \n \n \n## Description: \n${userResponses.Description} \n \n`
   
-  // Readme Footer
-  let readmeFooter = `## License: \n${data.License} \n \n \n`;
+  // Readme Footer; - license;
+  let readmeFooter = `## License: \n${userResponses.License} \n \n \n`;
   
-  // Table of Contents
+  // Table of Contents - optional elements;
   let tableOfContents = `## Table of Contents \n* [License](#license)`;
   
-  if (data.Installation !== ('' || 'optional')){
+  if (userResponses.Installation !== ('' || 'optional')){
     tableOfContents += `\n* [Installation](#installation)`;
-    readmeFooter += `## Installation: \n${data.Installation} \n \n \n`
+    readmeFooter += `## Installation: \n${userResponses.Installation} \n \n \n`
   }
 
-  if (data.Usage !== ('' || 'optional')){
+  if (userResponses.Usage !== ('' || 'optional')){
     tableOfContents += `\n* [Usage](#usage)`;
-    readmeFooter += `## Usage: \n${data.Usage} \n \n \n`;
+    readmeFooter += `## Usage: \n${userResponses.Usage} \n \n \n`;
   }
 
-  if (data.Contributions !== ('' || 'optional')){
+  if (userResponses.Contributions !== ('' || 'optional')){
     tableOfContents += `\n* [Contributions](#contributions)`;
-    readmeFooter += `## Contributions: \n${data.Contributions} \n \n \n`;
+    readmeFooter += `## Contributions: \n${userResponses.Contributions} \n \n \n`;
   }
 
-  if (data.Testing !== ('' || 'optional')){
+  if (userResponses.Testing !== ('' || 'optional')){
     tableOfContents += `\n* [Testing](#testing)`;
-    readmeFooter += `## Testing: \n${data.Testing} \n \n \n`;
+    readmeFooter += `## Testing: \n${userResponses.Testing} \n \n \n`;
   }
 
-  // Questions
+  // Questions; - add questions to Table of Contents & Footer;
 tableOfContents += `\n* [Questions](#questions) \n \n \n`
-readmeFooter += `## Questions? \n \nIf you have any questions, contact me with the information below: \n \n[![Profile Picture](${userInfo.avatar_url})](${userInfo.url}) \n \nGitHub Username: @${userInfo.login}`
-if (userInfo.email !== null){
-  readmeFooter += `Email: ${userInfo.email}`;
+readmeFooter += `## Questions? \n \nIf you have any questions, contact me with the information below: \n \n[![Profile Picture](${userGitHub.avatar_url})](${userGitHub.url}) \n \nGitHub Username: @${userGitHub.login}`
+if (userGitHub.email !== null){
+  readmeFooter += `Email: ${userGitHub.email}`;
 } 
 
+// Stitch Draft; - add TOC to draft; add footer to draft.
 readmeDraft += tableOfContents;
 readmeDraft += readmeFooter;
 
+// Return and Export;
 return readmeDraft;
 }
 module.exports = generateMarkdown;
