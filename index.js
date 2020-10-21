@@ -99,14 +99,14 @@ function writeToFile(fileName, data) {
     })
 }
 
-// Initialize program
+// Initialize Program Function;
 async function init() {
-    // Prompt Questions
+    // Prompt Questions;
     const userResponses = await inquirer.prompt(userQuestions) 
     console.log('Your Responses: ', userResponses);
 
-    // User info
-    // - get User information from GitHub and define it as userGitHub
+    // User Info;
+    // - axios + GitHub api
     const axiosJS = {
         async getUser(userResponses) {
             try { let response = await axios.get(`https://api.github.com/users/${userResponses.Username}`);
@@ -116,14 +116,15 @@ async function init() {
         }
     }
 };
+
+    // - get User information from GitHub; define it as userGitHub;
     const userGitHub = await axiosJS.getUser(userResponses);
     console.log('Github user info:', userGitHub);
 
-    // Generate README
+    // Generate README; - generate markdown; write file;
     const userReadme = generateMarkdown(userResponses, userGitHub)
-    console.log(userReadme);
     await writeToFile(userResponses.Title + '-README.md', userReadme)
 }
 
-// function call to initialize program
+// CALL - Initialize Program;
 init();
