@@ -18,26 +18,30 @@ function generateMarkdown(userResponses, userGitHub) {
   // Table of Contents || TOC (Default); - TOC; optional entries;
   let tableOfContents = `\n## Table of Contents \n* [License](#license)`;
   
-  // TOC Options; - if response is not empty or 'optional'...;
-  if (userResponses.Installation !== ('' || 'optional')){
+  // - Installation - if response is not empty or 'optional'...;
+  if (userResponses.Installation !== ('' || 'use complete sentences with punctuation')){
+    // - Format - split to array of sentences; number sentences; convert back to string;
+    instructionsArray = userResponses.Installation.replace(/([.?!])\s*(?=[A-Z])/g, "$1|").split("|")
+    numberedInstructionsArray = instructionsArray.map((arr, index) => `${index + 1}.\t` + arr);
+    userInstructions = numberedInstructionsArray.join(" \n")
     // - add entry to TOC; add content to Footer;
     tableOfContents += `\n* [Installation](#installation)`;
-    readmeFooter += `\n## Installation: \n${userResponses.Installation}
+    readmeFooter += `\n## Installation: \n${userInstructions}
     \n&nbsp;\n \n&nbsp;\n`;}
 
-  // - etc...;
+  // - Usage - etc...;
   if (userResponses.Usage !== ('' || 'optional')){
     tableOfContents += `\n* [Usage](#usage)`;
     readmeFooter += `\n## Usage: \n${userResponses.Usage}
     \n&nbsp;\n \n&nbsp;\n`;}
 
-  // - etc...;
+  // - Contributions - etc...;
   if (userResponses.Contributions !== ('' || 'optional')){
     tableOfContents += `\n* [Contributions](#contributions)`;
     readmeFooter += `\n## Contributions: \n${userResponses.Contributions}
     \n&nbsp;\n \n&nbsp;\n`;}
 
-  // - etc...;
+  // - Testing - etc...;
   if (userResponses.Testing !== ('' || 'optional')){
     tableOfContents += `\n* [Testing](#testing)`;
     readmeFooter += `\n## Testing: \n${userResponses.Testing}
@@ -46,18 +50,18 @@ function generateMarkdown(userResponses, userGitHub) {
   // Questions; - add questions to Table of Contents & Footer;
   tableOfContents += `\n* [Questions](#questions)
   \n&nbsp;\n \n&nbsp;\n`
-
+    // - Contact Info
   readmeFooter += `\n## Questions?
   \nIf you have any questions, contact me with the information below:
   \n[![Profile Picture](${userGitHub.avatar_url})](${userGitHub.url})
-  \nGitHub Username: @${userGitHub.login}`
+  \nGitHub Username: [@${userGitHub.login}](${userGitHub.url})`
 
   // Email?
   if (userGitHub.email !== null){
     readmeFooter += `\nEmail: ${userGitHub.email}`;
 } 
 
-// Stitch Draft; - add TOC to draft; add footer to draft.
+// Assemble Draft; - add TOC to draft; add footer to draft.
 readmeDraft += tableOfContents;
 readmeDraft += readmeFooter;
 

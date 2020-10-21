@@ -56,29 +56,29 @@ const userQuestions = [
     {
         name: 'Installation',
         type: 'input',
-        default: 'optional',
-        message: "Describe the steps required to INSTALL your project:",
+        default: '*use complete sentences with punctuation*',
+        message: "(OPTIONAL) - Describe the steps required to INSTALL your project:",
     },
     // - Usage; - OPTIONAL;
     {
         name: 'Usage',
         type: 'input',
         default: 'optional',
-        message: "Enter instructions and examples of your project in USE:",
+        message: "(OPTIONAL) - Enter instructions and examples of your project in USE:",
     },
     // - Contributions; - OPTIONAL;
     {
         name: 'Contributions',
         type: 'input',
         default: 'optional',
-        message: "Enter guidelines on how other developers can CONTRIBUTE to your project:",
+        message: "(OPTIONAL) - Enter guidelines on how other developers can CONTRIBUTE to your project:",
     },
     // - Testing; - OPTIONAL;
     {
         name: 'Testing',
         type: 'input',
         default: 'optional',
-        message: "Enter TESTS written for your application and examples on how to run them:",
+        message: "(OPTIONAL) - Enter TESTS written for your application and examples on how to run them:",
     },
     // - License; - REQUIRED;
     {
