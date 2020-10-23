@@ -6,38 +6,60 @@ const fs = require("fs")
 // Utilities - generateMarkdown.js;
 const generateMarkdown = require("./utils/generateMarkdown.js")
 
+// API Arrays - (DEFAULT)
+const userGitHub = [];
+const userRepositories = [];
+
+// User Info;
+// - axios + GitHub api
+const axiosJS = {
+    async getUser(usernameGH) {
+        try {
+            // - pulls user data; pulls user's repository data;
+            userGitHub.push((await axios.get(`https://api.github.com/users/${usernameGH}`)).data);
+            userRepositories.push(...(await axios.get(`https://api.github.com/users/${usernameGH}/repos?per_page=100`)).data.map(repo => repo.name));
+        } 
+        catch {
+            console.log(`\nUsername not found.`);
+        }
+    }
+};
+
+
 // Inquirer Prompts;
 const userQuestions = [
     // - Username; - REQUIRED;
     {
         name: 'Username',
         type: 'input',
-        default: 'Username',
-        message: 'Enter your GitHub Username:',
-        validate: (response) => {if (response == ('' || 'Username')){
-            return console.log('A valid GitHub Username is required to proceed.');
+        message: 'Enter your GitHub Username: ',
+        transformer: function(a,b) {
+            return `${'@' + a}`
+        },
+        validate: async usernameGH => {
+            // - test username against GitHub;
+            await axiosJS.getUser(usernameGH);
+            if (userRepositories.length < 1){
+                userGitHub.splice(0, userGitHub.length);
+                return console.log('\nA valid GitHub Username is required to proceed.');
         }
         return true;}
     },
     // - Repository; - REQUIRED;
     {
         name: 'Repository',
-        type: 'input',
-        default: 'Case-Sensitive',
-        message: 'Enter the name of your GitHub Repository:',
-        validate: (response) => {if (response == ('' || 'Case-Sensitive')){
-            return console.log('A GitHub Repository is required for badges.');
-        }
-        return true;}
+        type: 'list',
+        message: 'Select your GitHub Repository:',
+        choices: userRepositories
     },
     // - Title; - REQUIRED;
     {
         name: 'Title',
         type: 'input',
-        default: 'Project-Title',
-        message: 'Enter the title of your project:',
-        validate: (response) => {if (response == ('' || 'Project-Title')){
-            return console.log('Please TITLE your project.');
+        default: 'Project_Title',
+        message: 'Enter the TITLE of your project:',
+        validate: (response) => {if (response.length < 1){
+            return console.log('\n\nPlease title your project.');
         }
         return true;}
     },
@@ -45,10 +67,9 @@ const userQuestions = [
     {
         name: 'Description',
         type: 'input',
-        default: 'Description...',
         message: 'Please write a DESCRIPTION of your project:',
-        validate: (response) => {if (response == ('' || 'Description...')){
-            return console.log('A valid description is required to proceed.');
+        validate: (response) => {
+            if (response.length < 1){return console.log('\n\nA valid description is required to proceed.');
         }
         return true;}
     },
@@ -56,29 +77,31 @@ const userQuestions = [
     {
         name: 'Installation',
         type: 'input',
-        default: '*use complete sentences with punctuation*',
         message: "(OPTIONAL) - Describe the steps required to INSTALL your project:",
+        transformer: (input) => {
+            splitInput = input.replace(/([.?!])\s*(?=[A-Z])/g, "$1|").split("|");
+            numberList = splitInput.map((arr, index) => `${index + 1}.\t` + arr);
+            listFormat = numberList.join('\n');
+            return '*Use sentences with punctuation/Capital letters*' + '\n' + listFormat + '<<<';
+        }
     },
     // - Usage; - OPTIONAL;
     {
         name: 'Usage',
         type: 'input',
-        default: 'optional',
         message: "(OPTIONAL) - Enter instructions and examples of your project in USE:",
     },
     // - Contributions; - OPTIONAL;
     {
         name: 'Contributions',
         type: 'input',
-        default: 'optional',
         message: "(OPTIONAL) - Enter guidelines on how other developers can CONTRIBUTE to your project:",
     },
     // - Testing; - OPTIONAL;
     {
         name: 'Testing',
         type: 'input',
-        default: 'optional',
-        message: "(OPTIONAL) - Enter TESTS written for your application and examples on how to run them:",
+        message: "(OPTIONAL) - Describe the TESTS for your application and examples on how to run them:",
     },
     // - License; - REQUIRED;
     {
@@ -95,7 +118,7 @@ function writeToFile(fileName, data) {
         if(err){
             return console.log(err);
         }
-        console.log('Your README.md has been generated.');
+        console.log('\nYour README.md has been generated.');
     })
 }
 
@@ -103,26 +126,11 @@ function writeToFile(fileName, data) {
 async function init() {
     // Prompt Questions;
     const userResponses = await inquirer.prompt(userQuestions) 
-    console.log('Your Responses: ', userResponses);
-
-    // User Info;
-    // - axios + GitHub api
-    const axiosJS = {
-        async getUser(userResponses) {
-            try { let response = await axios.get(`https://api.github.com/users/${userResponses.Username}`);
-            return response.data;
-        } catch (error) {
-            console.log(error);
-        }
-    }
-};
-
-    // - get User information from GitHub; define it as userGitHub;
-    const userGitHub = await axiosJS.getUser(userResponses);
+    console.log('\n\nYour Responses: ', userResponses);
 
     // Generate README; - generate markdown; write file;
-    const userReadme = generateMarkdown(userResponses, userGitHub)
-    await writeToFile(userResponses.Title + '-README.md', userReadme)
+    const userReadme = generateMarkdown(userResponses, userGitHub[0])
+    await writeToFile('README.md', userReadme)
 }
 
 // CALL - Initialize Program;
